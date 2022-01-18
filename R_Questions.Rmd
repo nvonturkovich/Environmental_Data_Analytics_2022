@@ -1,0 +1,44 @@
+---
+title: "R Questions"
+output: html_notebook
+---
+
+Questions:
+Is making sure you have pulled all changes as easy as just hitting the pull button, and it tells you its up to date?
+
+I have updated the course README file with my name. Is that the update you need?
+
+Difference between console and terminal?
+
+
+
+
+
+
+
+
+
+
+Notes:
+!= different
+== equal
+
+Functions:
+recipe <_ function(x) {
+  mix <- x*2
+  return(mix)
+}
+}
+
+"$" assessing object inside a list
+
+ifelse(x<3, X*2, X/2)
+
+Formatting:
+## section 1
+## section 2
+if you hit collapse all, it will collapse down to these sections
+
+Help:
+Within your R chunks in your editor, type in ??function. This will bring up the help pane in the notebook, which you can then navigate through to find what you need.
+In the console, type in help(function). This will bring up the help pane in the notebook at the page for that function.
