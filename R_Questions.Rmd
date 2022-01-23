@@ -1,6 +1,8 @@
 ---
 title: "R Questions"
-output: html_notebook
+output:
+  pdf_document: default
+  html_notebook: default
 ---
 
 Questions:
@@ -9,17 +11,20 @@ Is making sure you have pulled all changes as easy as just hitting the pull butt
 I have updated the course README file with my name. Is that the update you need?
 
 Difference between console and terminal?
-
-
-
-
-
-
-
+terminal = Processed by computer operating system
+console = processed by R
 
 
 
 Notes:
+Always keep raw data and processed data separate
+NEVER change raw data
+clean/transform all through coding
+Make code well commented
+Reproducibility
+
+YAML - yet another markdown file
+
 != different
 == equal
 
