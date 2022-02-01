@@ -6,17 +6,15 @@ output:
 ---
 
 Questions:
-Is making sure you have pulled all changes as easy as just hitting the pull button, and it tells you its up to date?
 
-I have updated the course README file with my name. Is that the update you need?
 
-Difference between console and terminal?
+
+
+## Notes:
+Difference between console and terminal
 terminal = Processed by computer operating system
 console = processed by R
 
-
-
-Notes:
 Always keep raw data and processed data separate
 NEVER change raw data
 clean/transform all through coding
@@ -28,7 +26,47 @@ YAML - yet another markdown file
 != different
 == equal
 
-Functions:
+## Setting up a .Rmd:
+getwd() see wd
+setwd() set wd
+ibrary() load packages
+view(dataset)
+class(USGS.flow.data$datetime) # Check our date column
+USGS.flow.data$datetime <- as.Date(USGS.flow.data$datetime, format = "%Y-%m-%d") 
+class(USGS.flow.data$datetime) # change date to date object
+
+dec="." #set decimals to . or ,
+
+## Data
+numerical (continuous or descrete) vs categorical (nominal)
+
+## File paths:
+read.csv("./")    = ./ starts looking in the working directory
+read.csv(file.choose())
+stringAsFactors = True
+
+c() = combine or create a vector
+str() shows all different column names
+dim() # of rows
+length() # of columns
+
+## NA's in a Data Set:
+data.complete<-na.omit(dataframe)
+
+## Dates
+%d  day as number (0-31)
+%m  month (00-12, can be e.g., 01 or 1)
+%y  2-digit year
+%Y  4-digit year
+%a  abbreviated weekday
+%A  unabbreviated weekday
+%b  abbreviated month
+%B  unabbreviated month
+
+USGS.flow.data$datetime <- as.Date(USGS.flow.data$datetime, format = "%m/%d/%y") 
+
+
+## Functions:
 recipe <_ function(x) {
   mix <- x*2
   return(mix)
@@ -39,11 +77,25 @@ recipe <_ function(x) {
 
 ifelse(x<3, X*2, X/2)
 
-Formatting:
+## How to check what type of class your data is:
+class(dataframe)
+is.data.frame(dataframe)
+
+## Make it a data frame:
+as.data.frame
+
+## Merge columns in df:
+cbind(row1, row2) = column bind
+rbind () =row bind
+
+## Renaming Columns:
+new.df<- data.frame("speed"=car_speed, "dist"=car_dist)
+
+## Formatting:
 ## section 1
 ## section 2
 if you hit collapse all, it will collapse down to these sections
 
-Help:
+## Help:
 Within your R chunks in your editor, type in ??function. This will bring up the help pane in the notebook, which you can then navigate through to find what you need.
 In the console, type in help(function). This will bring up the help pane in the notebook at the page for that function.
