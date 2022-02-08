@@ -82,6 +82,25 @@ recipe <_ function(x) {
 
 ifelse(x<3, X*2, X/2)
 
+#Data vis
+ggplot2
+layers = geoms (types of plots)
+esthetics = color, fill, shape, size, transparency
+scales = scales of axies 
+themes = formatting, ?theme
+color palettes = color packages: RcolorBrewer virids colormap
+  types: continuous, divergent, categorical
+  
+cow plot
+
+ggsave
+
+as_factor - categorical
+
+data-to-viz.com - flow chart for picking which chart you should use
+you can add animation ex. gapminder.prg
+
+
 ## How to check what type of class your data is:
 class(dataframe)
 is.data.frame(dataframe)
