@@ -8,8 +8,6 @@ output:
 Questions:
 
 
-
-
 ## Notes:
 Difference between console and terminal
 terminal = Processed by computer operating system
@@ -65,6 +63,13 @@ data.complete<-na.omit(dataframe)
 
 USGS.flow.data$datetime <- as.Date(USGS.flow.data$datetime, format = "%m/%d/%y") 
 
+## Data Wrangling
+Piping:
+adding a pipe -  cmd + shift + M
+
+pivot:
+Gather=pivot_longer=transforming columns into rows making data LONGER, more rows = longer
+spread=pivot_wider=turning rows into columns making data WIDER, more columns = wider
 
 ## Functions:
 recipe <_ function(x) {
