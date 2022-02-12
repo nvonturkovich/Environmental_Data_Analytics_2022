@@ -35,6 +35,8 @@ class(USGS.flow.data$datetime) # change date to date object
 
 dec="." #set decimals to . or ,
 
+*Please make sure you do not have code that runs over the page. You can do this simply by putting long lines of code onto multiple lines. Another solution is to instill the formatR package and modify the first chunk of code to knitr::opts_chunk$set(tidy.opts=list(width.cutoff=X), tidy=TRUE, echo=TRUE), where X is a width dimension (60,75, 80, etc.) that you specify. 
+
 ## Data
 numerical (continuous or descrete) vs categorical (nominal)
 
