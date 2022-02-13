@@ -32,21 +32,21 @@ the processed data file for the Niwot Ridge litter dataset (use the [`NEON_NIWO_
 2. Make sure R is reading dates as date format; if not change the format to date.
 
 ```{r}
-#1 
+#1
 getwd()
 library(tidyverse)
 library(cowplot)
 library(lubridate)
-library(ggplot2)
-PeterPaul.chem.nutrients <- 
-  read.csv("./Data/Processed/NTL-LTER_Lake_Chemistry_Nutrients_PeterPaul_Processed.csv", stringsAsFactors = TRUE)
+
+PeterPaul.chem.nutrients <-
+  read.csv("/Users/natalievonturkovich/Documents/DUKE/Courses/Spring 22/ENV_872_EDA/Environmental_Data_Analytics_2022/Data/Processed/NTL-LTER_Lake_Chemistry_Nutrients_PeterPaul_Processed_NVT.csv", 
+           stringsAsFactors = TRUE)
 PeterPaul.chem.nutrients.gathered <-
-  read.csv("./Data/Processed/NTL-LTER_Lake_Nutrients_PeterPaulGathered_Processed.csv", stringsAsFactors = TRUE)
-
-PeterPaul.chem.nutrients.wider<-pivot_wider(PeterPaul.chem.nutrients.gathered, names_from = nutrient, values_from = concentration)
-
+  read.csv("/Users/natalievonturkovich/Documents/DUKE/Courses/Spring 22/ENV_872_EDA/Environmental_Data_Analytics_2022/Data/Processed/NTL-LTER_Lake_Nutrients_PeterPaulGathered_Processed_NVT.csv", 
+           stringsAsFactors = TRUE)
 Niwot.litter.processed <-
-  read.csv("./Data/Processed/NEON_NIWO_Litter_mass_trap_Processed.csv", stringsAsFactors = TRUE)
+  read.csv("/Users/natalievonturkovich/Documents/DUKE/Courses/Spring 22/ENV_872_EDA/Environmental_Data_Analytics_2022/Data/Processed/NEON_NIWO_Litter_mass_trap_Processed_NVT.csv", 
+           stringsAsFactors = TRUE)
 
 #2 
 PeterPaul.chem.nutrients$sampledate <- ymd(PeterPaul.chem.nutrients$sampledate)
@@ -73,17 +73,15 @@ For numbers 4-7, create ggplot graphs and adjust aesthetics to follow best pract
 
 ```{r}
 #4
-NTL_LITER <-
-  ggplot(PeterPaul.chem.nutrients, aes(x=tp_ug, y = po4))
-  #geom_point(color = lakename)+
-  #geom_smooth(method = lm, color = 'black') 
-print(NTL_LITER)
-
-  xlim()+
-  ylim()
-  
-  
-
+NTL_LITER_4 <-
+  ggplot(PeterPaul.chem.nutrients, aes(x = tp_ug, y = po4, color = lakename))+
+  geom_point() +
+  geom_smooth(method = lm, color = "black") +
+  xlim(0, 70) +
+  ylim(0, 15)+
+  labs( x = "Total Phosphorus", y = "Phosphate", color = "Lake Name", 
+        title = "Peter & Paul Lakes - Phosphorus and Phosphate")
+print(NTL_LITER_4)
 ```
 
 
@@ -91,24 +89,75 @@ print(NTL_LITER)
 
 ```{r}
 #5
+PeterPaul.chem.nutrients$month<-as.factor(PeterPaul.chem.nutrients$month)
 
+NTL_LITER_5_temp <-
+  ggplot(PeterPaul.chem.nutrients, aes(x = month, y = temperature_C)) +
+  geom_boxplot(aes(color = lakename)) +
+  labs(y = "Temperature (C)", x = "Month", color = "Lake Name") 
+print(NTL_LITER_5_temp)
+
+NTL_LITER_5_tp <-
+  ggplot(PeterPaul.chem.nutrients, aes(x = month, y = tp_ug)) +
+  geom_boxplot(aes(color = lakename)) +
+  labs(y = "TP", x = "Month", color = "Lake Name")
+print(NTL_LITER_5_tp)
+
+NTL_LITER_5_tn <-
+  ggplot(PeterPaul.chem.nutrients, aes(x = month, y = tn_ug)) +
+  geom_boxplot(aes(color = lakename)) +
+  labs(y = "TN", x = "Month", color = "Lake Name")
+print(NTL_LITER_5_tn)
+
+plot_5<-plot_grid(NTL_LITER_5_temp + theme(legend.position="none"), 
+                  NTL_LITER_5_tp + theme(legend.position="none"), 
+                  NTL_LITER_5_tn + theme(legend.position="none"), 
+                  nrow = 1, align = 'h', rel_heights = c(1, 1,1))
+
+legend_5 <- get_legend(
+  NTL_LITER_5_temp + 
+    guides(color = guide_legend(nrow = 1)) +
+    theme(legend.position = "bottom"))
+
+title_5 <- ggdraw() + draw_label("Peter & Paul Lake Temperature, TP & TN", fontface='bold') 
+
+plot_grid(title_5, plot_5, legend_5, ncol = 1, rel_heights = c(.1, 1, .1))
 ```
 
 Question: What do you observe about the variables of interest over seasons and between lakes? 
 
-> Answer: 
+> Answer: Over seasons, temperature has the widest variabillity, where as TP and even more so TN have a smaller range of where most observations sit, with a larger number of outliers. Between lakes, Peter lake has a wider range of temperature readings for each month. For TP and TN, Peter lake also has a wider range, but in general Peter Lake values for these characteristics are higher than Paul Lake. 
 
 6. [Niwot Ridge] Plot a subset of the litter dataset by displaying only the "Needles" functional group. Plot the dry mass of needle litter by date and separate by NLCD class with a color aesthetic. (no need to adjust the name of each land use)
+
+```{r}
+#6
+Needles_plot <-
+  ggplot(filter(Niwot.litter.processed, functionalGroup == "Needles") , 
+         aes(x = collectDate, y = dryMass)) +
+  geom_point(aes(color = nlcdClass)) +
+  labs(y = "Dry Mass", x = "Collection Date", color = "NLCD Class", 
+       title = "Needle Dry Mass by Month") +
+  #scale_x_date(date_breaks = "2 months", date_labels = "%b %y") +
+  theme(axis.text.x = element_text(angle = 45,  hjust = 1))
+print(Needles_plot)
+```
 
 7. [Niwot Ridge] Now, plot the same plot but with NLCD classes separated into three facets rather than separated by color. 
 
 ```{r}
-#6
-
 #7
-
-
+Needles_plot_facet <-
+  ggplot(filter(Niwot.litter.processed, functionalGroup == "Needles") , 
+         aes(x = collectDate, y = dryMass)) +
+  geom_point(aes(color = nlcdClass)) +
+  labs(y = "Dry Mass", x = "Collection Date", color = "NLCD Class", 
+       title = "Needle Dry Mass by Month") +
+  #scale_x_date(date_breaks = "2 months", date_labels = "%b %y") +
+  theme(axis.text.x = element_text(angle = 45,  hjust = 1))+
+  facet_wrap(vars(nlcdClass), nrow = 3)
+print(Needles_plot_facet)
 ```
 Question: Which of these plots (6 vs. 7) do you think is more effective, and why? 
 
-> Answer:
+> Answer: I ghink that plot 7 is more effective than plot 6. Plot 7 separates out each NLCD class, making it easier to see the distribuation of dry mass for each class. You are able to see what the distribution of each class looks like then compare them to eachother. With all of the classes in the same plot it is hard to see how they compare with all of the points overlapped. 
