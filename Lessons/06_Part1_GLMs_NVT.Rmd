@@ -35,7 +35,7 @@ If multiple explanatory variables are chosen, they may be analyzed with respect 
 
 Hypothesis Testing
 H0 = null hyothesis (what you think will happen)
-H1 = the altnerative hypothesis
+H1 = the altnerative hypothesis, what your test will tell you if the null is false
 lets chose a sample from the pop and test if the mean and variance is a good representation of the population
 we then can reject or accept the hypothesis
 Procedure:
@@ -46,6 +46,7 @@ make the decsision to reject or not reject the null hypothesis
 is P value is <= alpha, reject the null
 if P value is > alpha, do not ject the null
 alpha = confidence level
+
 
 
 ### Assumptions of the GLM
@@ -68,6 +69,27 @@ p value for each independent variuable test the null hypothesis
 H0: independent variable has no coreelations with the dependent variable
 If p value for a variable is less than your significance level, your sample data provide enough evidence to rejecg the null hypothesis for the entire population.
   p value< alpha, there is a significant correlation with dependednvarable
+  
+#Terminology:
+regression coefficent - slope of regression line
+fitted values - estiamtes of y obtained from the regression line (prediction)
+residuals - difference between observed and fitted values (errors)
+least squares - method used to find the line that minimizes squared sum of residuals
+
+#Work Flow:
+Look at scatter plot
+add line of best fit
+run model
+interpret results:
+  Residuals - variability in y if you take of the factor of x
+  R- if high, means you took out error
+  R^2 -
+Look at summary plots:
+  residuals vs fitted - 
+  Normal Q Q - y = error (obersved vs predicted) acroass x=quantiles
+  scale Location - fitted values (predictions) 
+  residuals vs levergage - leverage= how your model might change if you take out a point. standarized residuals = how far the point deviates from prediction. outside the red lines is bad
+
 
 
 ## Set up
@@ -86,6 +108,7 @@ theme_set(mytheme)
 ```
 
 ## Linear Regression
+simplest of GLMs
 A linear regression is comprised of a continuous response variable, plus a combination of 1+ continuous response variables (plus the error term). The deterministic portion of the equation describes the response variable as lying on a straight line, with an intercept and a slope term. The equation is thus a typical algebraic expression: 
 $$ y = \alpha + \beta*x + \epsilon $$
 

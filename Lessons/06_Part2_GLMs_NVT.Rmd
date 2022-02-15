@@ -44,6 +44,9 @@ normally distrubuted populations
 variances are equal
 observatinos are independent
 
+Linear model = two continutous variables, line of best fit, deviation from line of best fit
+ANOVA = deviation across two means, does the variance change if we categorize things
+
 
 
 Does total litter biomass differ among sites at the Niwot Ridge LTER?
@@ -74,6 +77,8 @@ shapiro.test(Litter.Totals$dryMass[Litter.Totals$plotID == "NIWO_062"])
 shapiro.test(Litter.Totals$dryMass[Litter.Totals$plotID == "NIWO_063"])
 shapiro.test(Litter.Totals$dryMass[Litter.Totals$plotID == "NIWO_064"])
 shapiro.test(Litter.Totals$dryMass[Litter.Totals$plotID == "NIWO_067"])
+
+#low p value is bad, dont want significance of difference. want data to be distributed around the mean. not around 0
 
 #results: reject null in all except two: NIWO_057 and NIWO_046. only these two sites follow a normal distribution
 qqnorm(Litter.Totals$dryMass); qqline(Litter.Totals$dryMass)
@@ -127,6 +132,7 @@ What information does the output give us? How might we report this information i
 
 > 
 
+
 ## TWO-WAY ANOVA
 ### Main effects
 A two-way ANOVA allows us to examine the effects of two categorical explanatory variables on a continuous response variable. What if we wanted to know how litter masses varied across functional groups and land cover class? 
@@ -134,6 +140,9 @@ across groups AND land cover
 
 ```{r}
 # Format as aov
+#null = no difference in means across populations
+#alt =  yes difference in means
+#low p means statistically sig, reject the null, there is some difference in means
 Litter.anova.2way <- aov(data = Litter, dryMass ~ functionalGroup + nlcdClass)
 summary(Litter.anova.2way)
 
