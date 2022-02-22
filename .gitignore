@@ -28,4 +28,11 @@ vignettes/*.pdf
 .Renviron
 # Rproject files
 *.Rproj
+<<<<<<< HEAD
 R_Questions.nb.html
+=======
+*_KEY.Rmd
+
+#Mac files
+.DS_Store
+>>>>>>> 25100e6524b65dad3bf0321e41abd64757e20e29

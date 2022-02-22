@@ -24,7 +24,7 @@ PeterPaul.chem.nutrients <- read.csv("./Data/Processed/NTL-LTER_Lake_Chemistry_N
 # Set date to date format
 PeterPaul.chem.nutrients$sampledate <- as.Date(PeterPaul.chem.nutrients$sampledate, format = "%Y-%m-%d")
 
-EPAair <- read.csv("./Data/Processed/EPAair_O3_PM25_NC2021_Processed_NVT.csv", stringsAsFactors = TRUE)
+EPAair <- read.csv("./Data/Processed/EPAair_O3_PM25_NC1819_Processed.csv", stringsAsFactors = TRUE)
 # Set date to date format
 EPAair$Date <- as.Date(EPAair$Date, format = "%Y-%m-%d")
 
@@ -67,20 +67,17 @@ Are Ozone levels below the threshold for "good" AQI index (0-50)?
 > Exercise 1: State the hypotheses for testing mean of AQI index.
 
 > Answer: 
-null: There is no difference in the means of the AQIs index across ozone levels
-alt: There is a difference in the means of the AQI
 
 
 ```{r}
 
 
 summary(EPAair$Ozone)
-EPAair.subsample <- sample_n(EPAair, 5000) # sample n takes random subset of data
-
+EPAair.subsample <- sample_n(EPAair, 5000)
 
 # Evaluate assumption of normal distribution
-shapiro.test((EPAair.subsample$Ozone)) #p value is low - that means data is not normal
-ggplot(EPAair, aes(x = Ozone)) + #okay so take a look at the plot, 
+shapiro.test((EPAair.subsample$Ozone))
+ggplot(EPAair, aes(x = Ozone)) +
   geom_histogram() 
 qqnorm(EPAair$Ozone); qqline(EPAair$Ozone)
 
@@ -97,7 +94,7 @@ print(Ozone.plot)
 
 Write a sentence or two about the results of this test. Include both the results of the test and an interpretation that puts the findings in context of the research question.
 
-> P value is <.05 we reject the null that there is a difference in means
+> 
 
 ### Two-sample t-test
 
@@ -107,12 +104,12 @@ The two-sample *t* test is used to test the hypothesis that the mean of two samp
 shapiro.test(EPAair$Ozone[EPAair$Year == 2018])
 shapiro.test(EPAair$Ozone[EPAair$Year == 2019])
 
-#p-value less than 0.05 then reject null for 2018 and 2019 i.e. data do not follow normal distribution 
+#p-value less than 0.05 then reject null for 2018 and 2019 i.e. data do not follow normal distribution
 
-#Compare variance using F-test (only)  - are the varianes equal, spread of the data
+#Compare variance using F-test (only)
 var.test(EPAair$Ozone ~ EPAair$Year)
 
-#p-value less than 0.05 then reject null for 2018 and 2019 i.e. true ratio not equal to one. not an equal spread
+#p-value less than 0.05 then reject null for 2018 and 2019 i.e. true ratio not equal to one
 
 ggplot(EPAair, aes(x = Ozone, color = as.factor(Year))) +
   geom_freqpoly()
@@ -121,7 +118,6 @@ ggplot(EPAair, aes(x = Ozone, color = as.factor(Year))) +
 O3.twosample <- t.test(EPAair$Ozone ~ EPAair$Year)
 O3.twosample
 O3.twosample$p.value
-#P value is <.05 reject the null. support alternative hypothesis: true difference in means between group 2018 and group 2019 is not equal to 0
 
 # Format as a GLM
 O3.twosample2 <- lm(EPAair$Ozone ~ EPAair$Year)
@@ -142,10 +138,6 @@ plot(O3.twosample2)
 **Shapiro.test:** check for normality
 
 **One-sample t-test:** check if mean is equal/less/greater to specific value, single variable
-null: difference between the sample mean and the value is 0
-alt: the difference is NOT zero (two sided)
-    the difference is GREATER than 0
-    
 
 **Two-sample t-test:**  check if mean of two samples is equivalent
 
@@ -159,26 +151,7 @@ Create three plots, each with appropriately formatted axes and legends. Choose a
 
 ```{r}
 #Exercise 2:
-ggplot(EPAair, aes(x = Ozone, fill = as.factor(Year)))+
-  geom_density(alpha=.5, color =)+
-  labs(title="Denisty Plot:Ozone by year",
-       x="Ozone AQI Value",
-       y="density",
-       fill = "Year")+
-  scale_fill_manual ( values =c('blue', 'yellow'))
 
-ggplot(EPAair, aes(x=as.factor(Year), y = Ozone))+ #not using as.factor lumps them together as a mean of years
-  geom_boxplot()+
-  stat_summary(geom = "text", fun.y =max, vjust = -1, size = 4, #stat_summary allows you to label things in your plot that are associate with the data
-               label = c("a", "b"), color = 'red')+
-  ylim(0,150)+
-  labs(x = "", y= "Ozone AQI value")
-
-ggplot(EPAair, aes(x=as.factor(Year), y = Ozone))+ #not using as.factor lumps them together as a mean of years
-  geom_violin(draw_quantiles = .5)+
-  stat_summary(geom = "text", fun.y =max, vjust = -1, size = 4,
-               label = c("a", "b"), color = 'red')+
-  labs(x = "", y= "Ozone AQI value")
 
 ```
 
@@ -191,24 +164,12 @@ For the NTL-LTER dataset, can we predict PM2.5 from Ozone?
 ```{r}
 
 #Exercise 3: Run a linear regression PM2.5 by Ozone. Find the p-value and R-squared value. 
-shapiro.test(EPAair.subsample$PM2.5) #failed
-hist(EPAPM2.5)
-qqnorm(EPAair$PM2.5); qqline(EPA$PM2.5)
 
 
-
-PM2.5_Ozone.regression <- lm(data = EPAair, PM2.5 ~ Ozone) #y=PM2.6, x=Ozone
-summary(PM2.5_Ozone.regression)
 
 #Exercise 4: Build a scatterplot. Add a line and standard error for the linear regression. 
-ggplot(EPAair, aes(x=Ozone, y = PM2.5))+
-  geom_point()+
-  geom_smooth(method="lm")+ #se=F gets rid of SE grey shaded area
-  labs(title = "Ozone Effect on PM2.5")+
-  theme(titleposition = center)
-#Adjusted R2 - variance residuals (deviation from predicted) / divided by the percent of variance in the dependent variable. Dependent variable is PM2.5. Sum of squared variance or error in mean. 
-#only 13% of variance of pm25 is due to changes in Ozone.plot
-#P value likely hood that the null hypothesis is true. - unlikely that the null is true. reject the null.
+
+
 
 ```
 
@@ -218,28 +179,18 @@ ggplot(EPAair, aes(x=Ozone, y = PM2.5))+
 What other variables can we add to improve model?
 
 ```{r}
+
 #Exercise 5: Build correlation plots and identify more possible explanatory variables to add to the regression.
 
-the_cor <- cor(EPAair %>%  select(SITE_LATITUDE:PM2.5) %>% drop_na())
 
-library(corrplot)
-corrplot(the_cor, method = "ellipse")
-corrplot.mixed(the_cor, upper = "ellipse")
-#shows direction strength and relationship between variable pairs
-#corr value is an index of the strength of the relationship, different form linear model
-#want to avoid explanatory variables correlated to each other
 
 
 #Exercise 6: Choose a model by AIC in a Stepwise Algorithm. Do the results from AIC match the variables you selected on Exercise 5?
-the_lm6 <-lm(data = EPAair,  PM2.5 ~ Ozone + Month +SITE_LATITUDE + SITE_LONGITUDE)
-summary(the_lm6)
 
-step(the_lm6)
-#if we remove it, whats the impact on AIC
+
+
 
 #Exercise 7: Run another regression using the variables selected on Exercise 6. Compare r-squared value with the one from Exercise 5. 
-the_lm7<- lm(data = EPAair, PM2.5 ~ Ozone + Month +SITE_LATITUDE + SITE_LONGITUDE)
-summary(the_lm7)
 
 ```
 
