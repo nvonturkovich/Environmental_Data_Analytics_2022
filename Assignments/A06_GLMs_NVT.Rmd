@@ -33,9 +33,7 @@ library(agricolae)
 library(lubridate)
 library(corrplot)
 
-NTL_LTR_ChemPhys <-
-  read.csv("/Users/natalievonturkovich/Documents/DUKE/Courses/Spring 22/ENV_872_EDA/Environmental_Data_Analytics_2022/Data/Raw/NTL-LTER_Lake_ChemistryPhysics_Raw.csv", 
-           stringsAsFactors = TRUE)
+NTL_LTR_ChemPhys<-read.csv("/Users/natalievonturkovich/Documents/DUKE/Courses/Spring 22/ENV_872_EDA/Environmental_Data_Analytics_2022/Data/Raw/NTL-LTER_Lake_ChemistryPhysics_Raw.csv", stringsAsFactors = TRUE)
 
 NTL_LTR_ChemPhys$sampledate <- mdy(NTL_LTR_ChemPhys$sampledate)
 
@@ -53,9 +51,11 @@ Our first research question is: Does mean lake temperature recorded during July 
 
 3. State the null and alternative hypotheses for this question:
 > Answer:
-H0: There is no change in mean lake temperature in July across depths
+H0: There is no change in mean lake temperature in July across depths 
 Ha: There is is a difference in means of lake temperature in July across depths
 
+*null is always there is no change
+*alt is always there is a change
 
 4.  Wrangle your NTL-LTER dataset with a pipe function so that the records meet the following criteria: 
  * Only dates in July. 
@@ -66,7 +66,6 @@ Ha: There is is a difference in means of lake temperature in July across depths
 
 ```{r scatterplot}
 #4
-NTL_LTR_ChemPhys$sampledate <- mdy(NTL_LTR_ChemPhys$sampledate)
 
 NTL_LTR_ChemPhys.processed <-NTL_LTR_ChemPhys %>%  
           mutate(Month = month(sampledate)) %>% 
@@ -95,11 +94,17 @@ ggplot(NTL_LTR_ChemPhys.processed, aes(x=depth, y = temperature_C))+
 HELP here
 ```{r linear.regression}
 #7 
-NTL_LTR_ChemPhys.subsample<-sample(NTL_LTR_ChemPhys.processed, 50)
-shapiro.test(NTL_LTR_ChemPhys.subsample$depth) #p value is low - that means data is not normal
-ggplot(NTL_LTR_ChemPhys.processed, aes(x = depth)) + #okay so take a look at the plot, 
-  geom_histogram() 
-qqnorm(NTL_LTR_ChemPhys.processed$depth); qqline(NTL_LTR_ChemPhys.processed$depth)
+#Did not run shapiro - ran the tests below instead
+#NTL_LTR_ChemPhys.subsample<-sample(NTL_LTR_ChemPhys.processed, 50)
+#shapiro.test(NTL_LTR_ChemPhys.processed$temperature_C) 
+#p value is low - that means data is not normal
+
+
+ggplot(NTL_LTR_ChemPhys.processed, aes(x = temperature_C)) + 
+  geom_histogram() #not evenly distributed
+
+qqnorm(NTL_LTR_ChemPhys.processed$temperature_C); qqline(NTL_LTR_ChemPhys.processed$temperature_C) #shows that the data is not evenly distributed. This plot show the thermocline in the lake which explain the uneven distribution of temperature.
+qqnorm(NTL_LTR_ChemPhys.processed$depth); qqline(NTL_LTR_ChemPhys.processed$depth) #depth better but not by much
 
 NTL_LTR_ChemPhys.regression <- lm(data = NTL_LTR_ChemPhys.processed, temperature_C ~ depth) 
 summary(NTL_LTR_ChemPhys.regression)
@@ -109,7 +114,10 @@ summary(NTL_LTR_ChemPhys.regression)
 8. Interpret your model results in words. Include how much of the variability in temperature is explained by changes in depth, the degrees of freedom on which this finding is based, and the statistical significance of the result. Also mention how much temperature is predicted to change for every 1m change in depth. 
 
 > Answer:
-The results show a high R squared value, indicating that 73% for temperature is explained by depth, with 9726 degrees of freedom. The low p value <.05 is statistically significant, we can reject the null hypothesis that there is no change in mean lake temperature in July across depths. We can interpret the depth coefficient where with every 1.9 unit decrease in depth results in a unit increase in temperature.
+The results show a high R squared value, indicating that 73% for temperature is explained by depth, with 9726 degrees of freedom. The low p value <.05 is statistically significant, we can reject the null hypothesis that there is no change in mean lake temperature in July across depths. We can interpret the depth coefficient where with every 1 meter increase in depth results in a 1.9 degree C decrease in temperature.
+
+y=21.95-1.94X
+y changes by x
 
 ---
 
@@ -128,7 +136,9 @@ NTL_LTR_ChemPhys.AIC <- lm(data = NTL_LTR_ChemPhys.processed, temperature_C ~ de
 
 #Choose a model by AIC in a Stepwise Algorithm
 step(NTL_LTR_ChemPhys.AIC)
-#the AIC shows that the lowest AIC score is when all three of these variables are included in the regression
+#the AIC shows that the lowest AIC score is when all three of these variables 
+#are included in the regression
+
 #10
 NTL_LTR_ChemPhys.regression <- lm(data = NTL_LTR_ChemPhys.processed, temperature_C ~ depth + year4 + 
               daynum)
@@ -161,7 +171,7 @@ summary(NTL_LTR_ChemPhys.totals$lakename)
 NTL_LTR_ChemPhys.anova <- aov(data = NTL_LTR_ChemPhys.totals, temperature_C ~ lakename)
 summary(NTL_LTR_ChemPhys.anova)
 
-#results: reject null hypothesis i.e. difference between a pair of group means is statiscally significant
+#results: reject null hypothesis i.e. difference between a pair of group means is stat. significant
 #P<.05,  null = mean is same across all sites. But doesn't tell us which means are not the same.
 
 # Format ANOVA as lm
@@ -184,13 +194,23 @@ ggplot(NTL_LTR_ChemPhys.processed, aes(x= temperature_C, y = depth))+
   geom_point(alpha = .5, color = "blue")+
   ylim(0,35)+
   geom_smooth(method = "lm", se = FALSE, color = "black")+
+  facet_wrap(vars(lakename))+
+  #scale_color_viridis_c()+
+  labs(x= "Temperature (C)", y = "Depth (m)", title = "Lake Temperatures by Depth")+
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggplot(NTL_LTR_ChemPhys.processed, aes(x= temperature_C, y = depth))+
+  geom_point(alpha = .5, color = "blue")+
+  ylim(0,35)+
+  geom_smooth(method = "lm", se = FALSE, color = "black")+
   scale_y_reverse()+
   facet_wrap(vars(lakename))+
   #scale_color_viridis_c()+
   labs(x= "Temperature (C)", y = "Depth (m)", title = "Lake Temperatures by Depth")+
   theme(plot.title = element_text(hjust = 0.5))
-#I reversed the x and y axis for this scatter plot. I find that it is a more natural way to represent lake temperature over depth as it depicts the cross section of a lake with the shallowest depth at the top of the y axis. I understand that temperature is the dependent variable and that the dependent variable typically goes on the y axis, but for this representation I put temperature on the x axis. 
+
 ```
+I reversed the x and y axis for this scatter plot. I find that it is a more natural way to represent lake temperature over depth as it depicts the cross section of a lake with the shallowest depth at the top of the y axis. I understand that temperature is the dependent variable and that the dependent variable typically goes on the y axis, but for this representation I put temperature on the x axis. 
 
 15. Use the Tukey's HSD test to determine which lakes have different means.
 
@@ -203,7 +223,7 @@ TukeyHSD(NTL_LTR_ChemPhys.anova)
 # Extract groupings for pairwise relationships
 NTL_LTR_ChemPhys.anova.groups <- HSD.test(NTL_LTR_ChemPhys.anova, "lakename", group = TRUE)
 NTL_LTR_ChemPhys.anova.groups
-#indicates which groups have the same mean. treatments with same letter are not significantly different
+#indicates which groups have the same mean. Treatments with same letter are not sig. different
 
 
 ```
@@ -218,6 +238,6 @@ Peter Lake is in group 1 and has the same mean temperature as the other lakes in
 
 17. If we were just looking at Peter Lake and Paul Lake. What's another test we might explore to see whether they have distinct mean temperatures? 
 
->Answer: If we were just looking at Peter and Paul Lake we could use atwo-sample t test to test the if the mean of two lakes is distinct.
+>Answer: If we were just looking at Peter and Paul Lake we could use a two-sample t test to test the if the mean of two lakes is distinct.
 
 
