@@ -74,23 +74,36 @@ BRA_complete <- inner_join(Rainfall_BR_processed,Temp_BR_processed)
   
            
 ```
-
+30 mins
 
 ## Initial plots
 
 ```{r}
 
 #Exercise 5: Check if there is any missing data for both temperature and rainfall series.
+summary(BRA_complete$Rainfall)
+summary(BRA_complete$Temperature_C)
+#No NA's
 
-
+#to get rid of NAs
+#BRA_complete_clean <- 
+ # BRA_complete %>% 
+ # mutate( AWND.clean = zoo::na.approx(AWND) )
 
 
 #Exercise 6: Plot both series over time on separate plots. Add a trend line using geom_smooth(). Can you say something about the trend just by visualizing the data?
 
+BRA_Rainfall_plot <-
+ggplot(BRA_complete, aes(x = Date, y = Rainfall)) +
+  geom_line() +
+  geom_smooth( method = lm )
+print(BRA_Rainfall_plot)
 
-
-
-
+BRA_Temp_plot <-
+ggplot(BRA_complete, aes(x = Date, y = Temperature_C)) +
+  geom_line() +
+  geom_smooth( method = lm )
+print(BRA_Temp_plot)
 
 ```
 
@@ -99,7 +112,12 @@ BRA_complete <- inner_join(Rainfall_BR_processed,Temp_BR_processed)
 ```{r}
 #Exercise 7: Create a time series objects for each series using ts(). Make sure you specify the starting point and frequency.
 
+fmonth <- month(first(BRA_complete$Date))
+fyear <- year(first(BRA_complete$Date))
 
+BRA_Rainfall_ts <- ts(BRA_complete$Rainfall, start =c(fyear,fmonth), frequency = 12)
+
+BRA_Temperature_C_ts <- ts(BRA_complete$Temperature_C, start = c(fyear,fmonth), frequency = 12)
 
 ```
 
@@ -116,30 +134,52 @@ A given time series can be made up of several component series:
 
 The `stl` function decomposes the time series object into its component parts. We must specify that the window for seasonal extraction is either "periodic" or a specific number of at least 7. The decomposition proceeds through a loess (locally estimated scatterplot smoothing) function.
 
+
+Help here - not periodic??
 ```{r}
 
-# Exercise 8: Use the stl() function to decompose both series. 
+# Exercise 8: Use the stl() function to decompose both series. # Generate the decomposition
 # Visualize the decomposed series using plot(). What components can you identify?
 
+BRA_Rainfall_Decomposed <- stl(BRA_Rainfall_ts, s.window = "periodic") #pulls apart data
+plot(BRA_Rainfall_Decomposed)
 
-
-
-
+BRA_Temp_Decomposed <- stl(BRA_Temperature_C_ts, s.window = "periodic") #pulls apart data
+plot(BRA_Temp_Decomposed)
+#trend is the random part of the series
 
 # Exercise 9: Use the times series object generated with the stl() to extract the 
 # components of each series and turn them into data frames.
 
+BR_Rain_Components <-
+  as.data.frame(BRA_Rainfall_Decomposed$time.series[,1:3])
+BR_Temp_Components <-
+  as.data.frame(BRA_Temp_Decomposed$time.series[,1:3])
+#need to convert timeseries to df
 
+#adds time series back to orginal df
+BR_Rain_Components <- mutate(BR_Rain_Components,
+                             Observed=BRA_complete$Rainfall,
+                             Date = BRA_complete$Date)
 
-
-
+BR_Temp_Components <- mutate(BR_Temp_Components,
+                          Observed=BRA_complete$Temperature_C,
+                          Date = BRA_complete$Date)
 
 # Exercise 10: Visualize how the trend maps onto the data for both series
 
+ggplot(BR_Temp_Components) +
+  geom_line(aes(y = Observed, x = Date),  size = 0.25) +
+  geom_line(aes(y = trend, x = Date), color = "#c13d75ff") +
+  #geom_hline(yintercept = 0, lty = 2) +
+  ylab(expression("Temperature"))
 
-
-
-
+ggplot(BR_Rain_Components) +
+  geom_line(aes(y = Observed, x = Date),  size = 0.25) +
+  geom_line(aes(y = trend, x = Date), color = "#c13d75ff") +
+  geom_line(aes(y = seasonal, x = Date), color = "blue") +
+  geom_hline(yintercept = 0, lty = 2) +
+  ylab(expression("Rainfall"))
 
 ```
 
@@ -150,6 +190,10 @@ Monotonic trends are a gradual shift over time that is consistent in direction. 
 
 * **linear regression**: no seasonality, fits the assumptions of a parametric test. Function: `lm`
 * **Mann-Kendall**: no seasonality, non-parametric, missing data allowed. Function: `Kendall::MannKendall()` or `trend::mk.test()`
+
+H0: S=0, ie. no trend
+H1: S!=0, ie., follow a trend
+
 * **Seasonal Mann-Kendall**: seasonality, non-parametric `Kendall::SeasonalMannKendall` or `trend::smk.test()`
 * **Spearman Rho**: no seasonality, non-parametric, missing data allowed. Function: `stats::cor.test(method="spearman")`
 
@@ -158,7 +202,10 @@ Monotonic trends are a gradual shift over time that is consistent in direction. 
 
 # Exercise 11: Apply one of the trend detection test to the original data set. Remember that the data has seasonal component, which test can be applied in this case?
 
-
+Rain_trend <- trend::smk.test(BRA_Rainfall_ts)
+#inspect results
+Rain_trend
+summary(Rain_trend)
 
 
 
