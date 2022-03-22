@@ -1,11 +1,13 @@
 ---
-title: "Assignment 9: Spatial Analysis in R"
+title: 'Assignment 9: Spatial Analysis in R'
 author: "Natalie von Turkovich"
-output: pdf_document
+output:
+  html_document:
+    df_print: paged
 geometry: margin=2.54cm
-editor_options: 
+editor_options:
   chunk_output_type: console
-  markdown: 
+  markdown:
     wrap: 72
 ---
 
@@ -32,11 +34,7 @@ This exercise accompanies the lessons in Environmental Data Analytics (ENV872L) 
 #1.
 getwd()
 
-# Set theme
-mytheme <- theme_classic(base_size = 14) +
-  theme(axis.text = element_text(color = "black"), 
-        legend.position = "top")
-theme_set(mytheme)
+
 
 #2. 
 library(tidyverse)
@@ -45,6 +43,12 @@ library(leaflet)
 library(sf)
 library(mapview)
 library(RColorBrewer)
+
+# Set theme
+mytheme <- theme_classic(base_size = 14) +
+  theme(axis.text = element_text(color = "black"), 
+        legend.position = "top")
+theme_set(mytheme)
 
 ```
 
@@ -94,7 +98,7 @@ head(NWIS_SiteInfo)
 
 9. What columns in the dataset contain the x and y coordinate values, respectively?  
 > ANSWER:
-> Columns "dec_lat_va" and "dec_long_va" contain the x and y coordinate values. 
+> Columns "dec_lat_va" and "dec_long_va" contain the x and y coordinate values, respectively. 
 
 
 ### Convert the dataframe to a spatial features ("sf") dataframe
@@ -170,10 +174,12 @@ NWIS_Flow_join <-  merge(x = NWIS_SiteInfo_sf,
                            by.x = "site_no", 
                            by.y = "site_no" )
 
+NWIS_Flow_join <- NWIS_Flow_join %>% 
+  select(c(site_no, station_nm.x,site_tp_cd, coord_acy_cd, dec_coord_datum_cd,date,gage_ht,geometry)) %>% 
+  rename(station_nm=station_nm.x)
+
 #17. Show the column names of the joined dataset
-head(NWIS_Flow_join)
-class(NWIS_Flow_join)
-class(NWIS_SiteInfo_sf)
+colnames(NWIS_Flow_join)
 
 #18. Show the dimensions of this joined dataset
 dim(NWIS_Flow_join)
@@ -196,6 +202,12 @@ ggplot()+
   geom_sf(data=NWIS_Flow_join, color='black', alpha=.5, aes(size = gage_ht))+
   labs(title="NWIS Gage Locations & Height in Nebraska", subtitle = "Natalie von Turkovich", size = "Gage Height")
 
+#other method
+mapview(counties_sf,
+        zcol = "AWATER")+
+mapview(NWIS_Flow_join,
+        cex = "gage_ht")
+  
 ```
 
 ---
@@ -245,21 +257,26 @@ Lancaster_co<-counties_sf_utm %>%
   filter(NAME %in% c('Lancaster'))
 
 #23 Select gages within the selected county
-triangle_HUCs<-NWIS_Flow_join_utm %>% 
+gage_locations<-NWIS_Flow_join_utm %>% 
   filter(st_within(x=., y=Lancaster_co, sparse = F))
 
-triangle_HUCs2<-NWIS_Flow_join_utm[Lancaster_co]
+#gage_locations<-NWIS_Flow_join_utm[Lancaster_co]
 
 #24 Plot
 
 ggplot()+
   geom_sf(data=counties_sf_utm, fill='grey', alpha=.5)+
    geom_sf(data = Lancaster_co, color='orange', fill = 'orange', alpha=1)+
-  geom_sf(data=triangle_HUCs, color='black', alpha=.5)+
+  geom_sf(data=gage_locations, color='black', alpha=.5)+
   labs(title="NWIS Gage Locations in Lancaster County Nebraska", subtitle = "Natalie von Turkovich")
 
 
-mapview(list(counties_sf_utm, Lancaster_co, triangle_HUCs),
+
+mapview(list(counties_sf_utm, Lancaster_co, gage_locations),
         layer.name = c("Nebraska Counties", "Lancasater County", "NWIS Gage Locations"))  #how to change the color of layers
+
+mapview(counties_sf_utm, col.reions = 'grey', name = "Nebraska Counties")+
+  mapview(Lancaster_co, col.regions = 'blue',  name = "Lancasater County")+
+  mapview(gage_locations, col.regions = 'red', name = "NWIS Gage Locations")
 
 ```
